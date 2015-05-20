@@ -16,20 +16,20 @@ if ( ! defined( 'ABSPATH' ) ) {
   $api_url = 'http://site-b.dev/cardone/get_nonce/?controller=user&method=register';
 
 
-  add_action( 'user_register', 'aru_register_remote', 10, 1 );
-
   function aru_register_remote( $user_id ) {
+  	global $api_url;
 
-  	$response = wp_remote_get( $api_url );
-  	if( is_array($response) ) {
-  $header = $response['headers']; // array of http header lines
-  $body = $response['body']; // use the content
-}
+  	$get_nouce_response = wp_remote_get( $api_url );
 
-error_log($response);
-print_r($response);
+  	if ( is_wp_error( $get_nouce_response ) ) {
+  		$error_message = $get_nouce_response->get_error_message();
+  		echo "Something went wrong: $error_message";
+  	} else {
+  		$post_user_response = wp_remote_post( "http://site-b.dev/cardone/user/register/?username=john&email=john@domain.com&nonce=bb7eaefcc1&display_name=John" );
+  	}
 
-    // if ( isset( $_POST['first_name'] ) )
+  	// if ( isset( $_POST['first_name'] ) )
     //     update_user_meta($user_id, 'first_name', $_POST['first_name']);
 
-}
+  }
+  add_action( 'user_register', 'aru_register_remote', 10, 1 );
