@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
   }
 
-  $api_url = 'http://site-b.dev/cardone/get_nonce/?controller=user&method=register';
+  $api_url = 'http://site-b.dev/api/get_nonce/?controller=user&method=register';
 
 
   function aru_register_remote( $user_id ) {
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
   		$error_message = $get_nouce_response->get_error_message();
   		echo "Something went wrong: $error_message";
   	} else {
-  		$post_user_response = wp_remote_post( "http://site-b.dev/cardone/user/register/?username=john&email=john@domain.com&nonce=bb7eaefcc1&display_name=John" );
+  		$post_user_response = wp_remote_post( "http://site-b.dev/api/user/register/?username=john&email=john@domain.com&nonce=bb7eaefcc1&display_name=John" );
   	}
 
   	// if ( isset( $_POST['first_name'] ) )
