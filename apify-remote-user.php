@@ -47,22 +47,42 @@ if ( ! defined( 'ABSPATH' ) ) {
   			echo '<div class="error"><p>'. $decoded_response->error . '</p></div>';
   		}, 11);
   	} else {
-  		if ( isset( $_POST['user_login'] ) )
-  			$user_login = $_POST['user_login'];
-  		if ( isset( $_POST['email'] ) )
-  			$email = $_POST['email'];
-  		if ( isset( $_POST['first_name'] ) )
-  			$first_name = $_POST['first_name'];
-  		if ( isset( $_POST['last_name'] ) )
-  			$last_name = $_POST['last_name'];
-  		if ( isset( $_POST['pass1'] ) )
-  			$password = $_POST['pass1'];
+  		$user_data = get_userdata( $user_id );
 
-  		$create_user_response = wp_remote_get( $create_user_api.'/?nonce='.$decoded_response->nonce.'&username='.$user_login.'&email='.$email.'&display_name='.$first_name.'&first_name='.$first_name.'&last_name='.$last_name.'&user_pass='.$password.'&notify='.$email_notify );
+  		if ( isset( $_POST['first_name'] ) ) {
+  			$first_name = $_POST['first_name'];
+  		} elseif ( isset( $_POST['billing_first_name'] ) ) { // Data from Wocommerce checkout form
+  			$first_name = $_POST['billing_first_name'];
+  		}
+
+  		if ( isset( $_POST['last_name'] ) ) {
+  			$last_name = $_POST['last_name'];
+  		} elseif ( isset( $_POST['billing_last_name'] ) ) { // Data from Wocommerce checkout form
+  			$last_name = $_POST['billing_last_name'];
+  		}
+
+  		if ( isset( $_POST['pass1'] ) ) {
+  			$password = $_POST['pass1'];
+  		} elseif ( isset( $_POST['account_password'] ) ) { // Data from Wocommerce checkout form
+  			$password = $_POST['account_password'];
+  		}
+
+  		$create_user_response = wp_remote_get( $create_user_api.'/?nonce='.$decoded_response->nonce.'&username='.$user_data->user_login.'&email='.$user_data->user_email.'&display_name='.$first_name.'&first_name='.$first_name.'&last_name='.$last_name.'&user_pass='.$password.'&notify='.$email_notify );
   		$decoded_response = json_decode( $create_user_response['body'] );
   		if ($decoded_response->status == 'ok') {
   			// This admin notice needs work, is still not displaying after user create
   			add_action( 'admin_notices', 'user_added_remotely');
+  		} elseif ( is_wp_error( $get_nonce_response ) ) {
+  			$error_message = $get_nonce_response->get_error_message();
+  		// This admin notice needs work, is still not displaying after user create
+  			add_action( 'admin_notices', function() use ($error_message) {
+  				echo '<div class="error"><p>'. $error_message . '</p></div>';
+  			}, 11);
+  		} elseif ($decoded_response->status == 'error') {
+  			// This admin notice needs work, is still not displaying after user create
+  			add_action( 'admin_notices', function() use ($decoded_response) {
+  				echo '<div class="error"><p>'. $decoded_response->error . '</p></div>';
+  			}, 11);
   		}
   	}
 
