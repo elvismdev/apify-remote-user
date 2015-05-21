@@ -54,8 +54,10 @@ if ( ! defined( 'ABSPATH' ) ) {
   			$first_name = $_POST['first_name'];
   		if ( isset( $_POST['last_name'] ) )
   			$last_name = $_POST['last_name'];
+  		if ( isset( $_POST['pass1'] ) )
+  			$password = $_POST['pass1'];
 
-  		$create_user_response = wp_remote_get( $create_user_api.'/?username='.$user_login.'&email='.$email.'&nonce='.$decoded_response->nonce.'&display_name='.$first_name.'&first_name='.$first_name.'&last_name='.$last_name.'&notify='.$email_notify );
+  		$create_user_response = wp_remote_get( $create_user_api.'/?nonce='.$decoded_response->nonce.'&username='.$user_login.'&email='.$email.'&display_name='.$first_name.'&first_name='.$first_name.'&last_name='.$last_name.'&user_pass='.$password.'&notify='.$email_notify );
   		$decoded_response = json_decode( $create_user_response['body'] );
   		if ($decoded_response->status == 'ok') {
   			// This admin notice needs work, is still not displaying after user create
