@@ -30,6 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
   function aru_register_remote( $user_id ) {
   	global $get_nounce_api;
   	global $create_user_api;
+  	global $email_notify;
 
   	$get_nonce_response = wp_remote_get( $get_nounce_api );
   	$decoded_response = json_decode( $get_nonce_response['body'] );
@@ -64,9 +65,6 @@ if ( ! defined( 'ABSPATH' ) ) {
   			add_action( 'admin_notices', 'user_added_remotely');
   		}
   	}
-
-  	// if ( isset( $_POST['first_name'] ) )
-    //     update_user_meta($user_id, 'first_name', $_POST['first_name']);
 
   }
   add_action( 'user_register', 'aru_register_remote', 10, 1 );
