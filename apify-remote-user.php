@@ -13,7 +13,10 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
   }
 
-  $api_url = 'http://site-b.dev/api/get_nonce/?controller=user&method=register';
+  // Define APIs URL
+  $get_nounce_api = 'http://site-b.dev/api/get_nonce/?controller=user&method=register';
+  $create_user_api = 'http://site-b.dev/api/user/register';
+
 
   function user_added_remotely() {
   	?>
@@ -24,13 +27,14 @@ if ( ! defined( 'ABSPATH' ) ) {
   }
 
   function aru_register_remote( $user_id ) {
-  	global $api_url;
+  	global $get_nounce_api;
+  	global $create_user_api;
 
-  	$get_nouce_response = wp_remote_get( $api_url );
-  	$decoded_response = json_decode( $get_nouce_response['body'] );
+  	$get_nonce_response = wp_remote_get( $get_nounce_api );
+  	$decoded_response = json_decode( $get_nonce_response['body'] );
 
-  	if ( is_wp_error( $get_nouce_response ) ) {
-  		$error_message = $get_nouce_response->get_error_message();
+  	if ( is_wp_error( $get_nonce_response ) ) {
+  		$error_message = $get_nonce_response->get_error_message();
   		// This admin notice needs work, is still not displaying after user create
   		add_action( 'admin_notices', function() use ($error_message) {
   			echo '<div class="error"><p>'. $error_message . '</p></div>';
@@ -45,7 +49,12 @@ if ( ! defined( 'ABSPATH' ) ) {
   			$user_login = $_POST['user_login'];
   		if ( isset( $_POST['email'] ) )
   			$email = $_POST['email'];
-  		$create_user_response = wp_remote_get( 'http://site-b.dev/api/user/register/?username='.$user_login.'&email='.$email.'&nonce='.$decoded_response->nonce.'&display_name=Pepe' );
+  		if ( isset( $_POST['first_name'] ) )
+  			$first_name = $_POST['first_name'];
+  		if ( isset( $_POST['last_name'] ) )
+  			$last_name = $_POST['last_name'];
+
+  		$create_user_response = wp_remote_get( $create_user_api.'/?username='.$user_login.'&email='.$email.'&nonce='.$decoded_response->nonce.'&display_name='.$first_name.'&first_name='.$first_name.'&last_name='.$last_name );
   		$decoded_response = json_decode( $create_user_response['body'] );
   		if ($decoded_response->status == 'ok') {
   			// This admin notice needs work, is still not displaying after user create
