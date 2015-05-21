@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
   // Define APIs URL
   $get_nounce_api = 'http://site-b.dev/api/get_nonce/?controller=user&method=register';
   $create_user_api = 'http://site-b.dev/api/user/register';
+  $email_notify = 'no';
 
 
   function user_added_remotely() {
@@ -54,7 +55,7 @@ if ( ! defined( 'ABSPATH' ) ) {
   		if ( isset( $_POST['last_name'] ) )
   			$last_name = $_POST['last_name'];
 
-  		$create_user_response = wp_remote_get( $create_user_api.'/?username='.$user_login.'&email='.$email.'&nonce='.$decoded_response->nonce.'&display_name='.$first_name.'&first_name='.$first_name.'&last_name='.$last_name );
+  		$create_user_response = wp_remote_get( $create_user_api.'/?username='.$user_login.'&email='.$email.'&nonce='.$decoded_response->nonce.'&display_name='.$first_name.'&first_name='.$first_name.'&last_name='.$last_name.'&notify='.$email_notify );
   		$decoded_response = json_decode( $create_user_response['body'] );
   		if ($decoded_response->status == 'ok') {
   			// This admin notice needs work, is still not displaying after user create
