@@ -15,17 +15,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 
   $api_url = 'http://site-b.dev/api/get_nonce/?controller=user&method=register';
 
+  function user_added_remotely() {
+  	?>
+  	<div class="updated">
+  		<p><?php esc_html_e( 'User created remotely', 'apify-remote-user' ); ?></p>
+  	</div>
+  	<?php
+  }
 
   function aru_register_remote( $user_id ) {
   	global $api_url;
 
   	$get_nouce_response = wp_remote_get( $api_url );
+  	$decoded_response = json_decode( $get_nouce_response['body'] );
 
   	if ( is_wp_error( $get_nouce_response ) ) {
   		$error_message = $get_nouce_response->get_error_message();
-  		echo "Something went wrong: $error_message";
+  		// This admin notice needs work, is still not displaying after user create
+  		add_action( 'admin_notices', function() use ($error_message) {
+  			echo '<div class="error"><p>'. $error_message . '</p></div>';
+  		}, 11);
+  	} elseif ($decoded_response->status == 'error') {
+  		// This admin notice needs work, is still not displaying after user create
+  		add_action( 'admin_notices', function() use ($decoded_response) {
+  			echo '<div class="error"><p>'. $decoded_response->error . '</p></div>';
+  		}, 11);
   	} else {
-  		$post_user_response = wp_remote_post( "http://site-b.dev/api/user/register/?username=john&email=john@domain.com&nonce=bb7eaefcc1&display_name=John" );
+  		if ( isset( $_POST['user_login'] ) )
+  			$user_login = $_POST['user_login'];
+  		if ( isset( $_POST['email'] ) )
+  			$email = $_POST['email'];
+  		$create_user_response = wp_remote_get( 'http://site-b.dev/api/user/register/?username='.$user_login.'&email='.$email.'&nonce='.$decoded_response->nonce.'&display_name=Pepe' );
+  		$decoded_response = json_decode( $create_user_response['body'] );
+  		if ($decoded_response->status == 'ok') {
+  			// This admin notice needs work, is still not displaying after user create
+  			add_action( 'admin_notices', 'user_added_remotely');
+  		}
   	}
 
   	// if ( isset( $_POST['first_name'] ) )
