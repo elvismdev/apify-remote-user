@@ -26,9 +26,9 @@ if (!session_id()) {
 class AruRegisterRemote
 {
     // Define APIs URL
-    const GET_NOUNCE_API = 'http://www.wordpress-bb.dev/api/get_nonce/?controller=user&method=register';
-    const CREATE_USER_API = 'http://www.wordpress-bb.dev/api/user/register';
-    CONST EMAIL_NOTIFY = 'no';
+    const GET_NOUNCE_API = 'http://site-b.dev/api/get_nonce/?controller=user&method=register';
+    const CREATE_USER_API = 'http://site-b.dev/api/user/register';
+    const EMAIL_NOTIFY = 'no';
 
     public function __construct()
     {
