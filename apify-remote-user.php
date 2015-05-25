@@ -8,14 +8,10 @@
  * Author URI: https://twitter.com/n3rdh4ck3r
  * Requires at least: 3.5
  * Tested up to: 4.1
- * Colaborator: Leroy Ley Loredo
+ * Collaborator: Leroy Ley Loredo
  */
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
-}
-
-if (!session_id()) {
-    session_start();
 }
 
 /**
@@ -32,6 +28,9 @@ class AruRegisterRemote
 
     public function __construct()
     {
+        if (!session_id())
+            session_start();
+
         add_action('user_register', array($this, 'aru_register_remote'), 10, 1);
     }
 
@@ -109,7 +108,8 @@ class AruRegisterRemote
     }
 }
 
-$api = new AruRegisterRemote();
-if (isset($_SESSION['notify'])) {
-    $api->notice();
+if (is_admin()) {
+    $api = new AruRegisterRemote();
+    if (isset($_SESSION['notify']))
+        $api->notice();
 }
