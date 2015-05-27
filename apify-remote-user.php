@@ -51,35 +51,16 @@ class AruRegisterRemote
         } else {
             $user_data = get_userdata($user_id);
 
-            if (isset($_POST['first_name'])) {
-                $first_name = $_POST['first_name'];
-            } elseif (isset($_POST['billing_first_name'])) { // Data from Wocommerce checkout form
-                $first_name = $_POST['billing_first_name'];
-            }
-
-            if (isset($_POST['last_name'])) {
-                $last_name = $_POST['last_name'];
-            } elseif (isset($_POST['billing_last_name'])) { // Data from Wocommerce checkout form
-                $last_name = $_POST['billing_last_name'];
-            }
-
-            if (isset($_POST['pass1'])) {
-                $password = $_POST['pass1'];
-            } elseif (isset($_POST['account_password'])) { // Data from Wocommerce checkout form
-                $password = $_POST['account_password'];
-            }
+            $first_name = isset($_POST['first_name']) ? $_POST['first_name'] : (isset($_POST['billing_first_name']) ? $_POST['billing_first_name'] : '');
+            $last_name = isset($_POST['last_name']) ? $_POST['last_name'] : (isset($_POST['billing_last_name']) ? $_POST['billing_last_name'] : '');
+            $password = isset($_POST['pass1']) ? $_POST['pass1'] : (isset($_POST['account_password']) ? $_POST['account_password'] : '');
 
             $create_user_response = wp_remote_get(self::CREATE_USER_API . '/?nonce=' . $decoded_response->nonce . '&username=' . $user_data->user_login . '&email=' . $user_data->user_email . '&display_name=' . $first_name . '&first_name=' . $first_name . '&last_name=' . $last_name . '&user_pass=' . $password . '&notify=' . self::EMAIL_NOTIFY);
             $decoded_response = json_decode($create_user_response['body']);
-            if ($decoded_response->status == 'ok') {
-                $_SESSION['notify'] = array('class' => 'updated', 'message' => 'User created remotely');
-            } elseif (is_wp_error($get_nonce_response)) {
-                $_SESSION['notify'] = array('class' => 'error', 'message' => $get_nonce_response->get_error_message());
-            } elseif ($decoded_response->status == 'error') {
-                $_SESSION['notify'] = array('class' => 'error', 'message' => $decoded_response->error);
-            } else {
-                $_SESSION['notify'] = array('class' => 'error', 'message' => 'Some error ocurred');
-            }
+            if ($decoded_response->status == 'ok')
+                $this->notify();
+            else
+                $this->notify('error', $decoded_response);
         }
     }
 
@@ -105,6 +86,33 @@ class AruRegisterRemote
         do_action('admin_notices', $_SESSION['notify']['class'], $_SESSION['notify']['message']);
 
         unset($_SESSION['notify']);
+    }
+
+    /**
+     * @param string $class
+     * @param mixed $response
+     *
+     * Set a proper description to it
+     */
+    public function notify($class = 'updated', $response = null)
+    {
+        switch ($class) {
+            case 'updated':
+                $message = 'User created remotely';
+                break;
+            case 'error':
+                $message = 'Some error ocurred';
+                if (method_exists($response, 'get_error_message'))
+                    $message = $response->get_error_message();
+                elseif (isset($response->error))
+                    $message = $response->error;
+                break;
+            default:
+                $message = 'Some default message';
+                break;
+        }
+
+        $_SESSION['notify'] = array('class' => $class, 'message' => $message);
     }
 }
 
