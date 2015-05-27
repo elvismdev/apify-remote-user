@@ -44,10 +44,8 @@ class AruRegisterRemote
         $get_nonce_response = wp_remote_get(self::GET_NOUNCE_API);
         $decoded_response = json_decode($get_nonce_response['body']);
 
-        if (is_wp_error($get_nonce_response)) {
-            $_SESSION['notify'] = array('class' => 'error', 'message' => $get_nonce_response->get_error_message());
-        } elseif ($decoded_response->status == 'error') {
-            $_SESSION['notify'] = array('class' => 'error', 'message' => $decoded_response->error);
+        if (is_wp_error($get_nonce_response) || $decoded_response->status == 'error') {
+            $this->notify('error', $decoded_response);
         } else {
             $user_data = get_userdata($user_id);
 
@@ -74,7 +72,7 @@ class AruRegisterRemote
     {
         if (!$message)
             return;
-        
+
         echo '<div class="' . $class . ' notice is-dismissible"><p>' . $message . '</p>
                  <button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button>
              </div>';
