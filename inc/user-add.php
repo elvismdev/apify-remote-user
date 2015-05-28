@@ -26,7 +26,12 @@ class AruRegisterRemote
         if (!session_id())
             session_start();
 
+        add_action('admin_init', array($this, 'admin_init'));
         add_action('user_register', array($this, 'aru_register_remote'), 10, 1);
+    }
+
+    public function admin_init() {
+        register_setting('aru_options', $this->option_name, array($this, 'validate'));
     }
 
     /**
