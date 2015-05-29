@@ -9,7 +9,6 @@ class AruRegisterRemote
     // Define APIs URL
     const GET_NOUNCE_API = '/api/get_nonce/?controller=user&method=register';
     const CREATE_USER_API = '/user/register';
-    const EMAIL_NOTIFY = 'no';
 
     // Name of the plugin options
     protected $option_name = 'apify-remote-user';
@@ -144,7 +143,7 @@ public function aru_register_remote($user_id)
         $last_name = isset($_POST['last_name']) ? $_POST['last_name'] : (isset($_POST['billing_last_name']) ? $_POST['billing_last_name'] : '');
         $password = isset($_POST['pass1']) ? $_POST['pass1'] : (isset($_POST['account_password']) ? $_POST['account_password'] : '');
 
-        $create_user_response = wp_remote_get($settings['url_remote_site'] . '/' . $settings['api_base'] . self::CREATE_USER_API . '/?nonce=' . $decoded_response->nonce . '&username=' . $user_data->user_login . '&email=' . $user_data->user_email . '&display_name=' . $first_name . '&first_name=' . $first_name . '&last_name=' . $last_name . '&user_pass=' . $password . '&notify=' . self::EMAIL_NOTIFY);
+        $create_user_response = wp_remote_get($settings['url_remote_site'] . '/' . $settings['api_base'] . self::CREATE_USER_API . '/?nonce=' . $decoded_response->nonce . '&username=' . $user_data->user_login . '&email=' . $user_data->user_email . '&display_name=' . $first_name . '&first_name=' . $first_name . '&last_name=' . $last_name . '&user_pass=' . $password . '&notify=' . $settings['email_remote_notify']);
         $decoded_response = json_decode($create_user_response['body']);
         if ($decoded_response->status == 'ok')
             $this->notify();
