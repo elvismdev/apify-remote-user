@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Apify Remote User
+ * Plugin Name: APIfy Remote User
  * Plugin URI: https://github.com/elvismdev/apify-remote-user
  * Description: Creates users on a remote WordPress install.
  * Version: 1.1.2
@@ -14,6 +14,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+define('ARU_PLUGIN_FILE', __FILE__);
 define( 'ARU_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 
 require_once( ARU_PLUGIN_PATH . 'inc/user-add.php' );
