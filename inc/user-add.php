@@ -17,7 +17,7 @@ class AruRegisterRemote
     // Default values
     protected $data = array(
         'url_remote_site' => 'http://site-b.dev',
-        'api_secret' => 'api',
+        'api_base' => 'api',
         'email_remote_notify' => 'no'
         );
 
@@ -32,6 +32,50 @@ class AruRegisterRemote
 
     public function admin_init() {
         register_setting('aru_options', $this->option_name, array($this, 'validate'));
+    }
+
+    public function validate($input) {
+
+        $valid = array();
+        $valid['url_remote_site'] = sanitize_text_field($input['url_remote_site']);
+        $valid['api_base'] = sanitize_text_field($input['api_base']);
+        $valid['email_remote_notify'] = sanitize_text_field($input['email_remote_notify']);
+
+        if (strlen($valid['url_remote_site']) == 0) {
+            add_settings_error(
+                'url_remote_site',                     // Setting title
+                'urlremotesite_texterror',            // Error ID
+                'Please enter a valid URL',     // Error message
+                'error'                         // Type of message
+                );
+
+        // Set it to the default value
+            $valid['url_remote_site'] = $this->data['url_remote_site'];
+        }
+
+        if (strlen($valid['api_base']) == 0) {
+            add_settings_error(
+                'api_base',
+                'apisecret_texterror',
+                'Please specify the API base',
+                'error'
+                );
+
+            $valid['api_base'] = $this->data['api_base'];
+        }
+
+        if (strlen($valid['email_remote_notify']) == 0) {
+            add_settings_error(
+                'email_remote_notify',
+                'emailremotenotify_texterror',
+                'Please select to notify user from remote site ',
+                'error'
+                );
+
+            $valid['email_remote_notify'] = $this->data['email_remote_notify'];
+        }
+
+        return $valid;
     }
 
     /**
