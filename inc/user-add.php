@@ -7,7 +7,7 @@
 class AruRegisterRemote
 {
     // Define APIs URL
-    const GET_NOUNCE_API = '/api/get_nonce/?controller=user&method=register';
+    const GET_NOUNCE_API = '/get_nonce/?controller=user&method=register';
     const CREATE_USER_API = '/user/register';
 
     // Name of the plugin options
@@ -131,7 +131,7 @@ public function aru_register_remote($user_id)
 {
     $settings = get_option('apify-remote-user');
 
-    $get_nonce_response = wp_remote_get($settings['url_remote_site'] . self::GET_NOUNCE_API);
+    $get_nonce_response = wp_remote_get($settings['url_remote_site'] . '/' . $settings['api_base'] . self::GET_NOUNCE_API);
     $decoded_response = json_decode($get_nonce_response['body']);
 
     if (is_wp_error($get_nonce_response) || $decoded_response->status == 'error') {
