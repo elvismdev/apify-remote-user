@@ -7,10 +7,10 @@ This plugin works in conjuntion with [JSON API](https://wordpress.org/plugins/js
 
 ## Installation and Usage
 
-1 - Install required plugins [JSON API](https://wordpress.org/plugins/json-api/) and [JSON API User](https://wordpress.org/plugins/json-api-user/) on remote BAR WordPress site.
-2 - Install Apify Remote User on website FOO.
-3 - Configure the plugin settings on website FOO at *Settings -> APIfy Remote User*.
-3 - Create a user on website FOO then it will be created also on website BAR.
+1. Install required plugins [JSON API](https://wordpress.org/plugins/json-api/) and [JSON API User](https://wordpress.org/plugins/json-api-user/) on remote BAR WordPress site.
+2. Install Apify Remote User on website FOO.
+3. Configure the plugin settings on website FOO at *Settings -> APIfy Remote User*.
+4. Create a user on website FOO then it will be created also on website BAR.
 
 ### ToDo
 - Update user
