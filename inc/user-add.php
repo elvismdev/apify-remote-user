@@ -136,6 +136,8 @@ class AruRegisterRemote
 */
 public function aru_register_remote($user_id)
 {
+    $settings = get_option('apify-remote-user');
+
     $get_nonce_response = wp_remote_get($settings['url_remote_site'] . self::GET_NOUNCE_API);
     $decoded_response = json_decode($get_nonce_response['body']);
 
