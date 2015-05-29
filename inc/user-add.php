@@ -67,7 +67,11 @@ class AruRegisterRemote
                         <td><input type="text" name="<?php echo $this->option_name?>[api_base]" value="<?php echo $options['api_base']; ?>" /></td>
                     </tr>
                     <tr valign="top"><th scope="row">Remote Email Notify:</th>
-                        <td><input type="text" name="<?php echo $this->option_name?>[email_remote_notify]" value="<?php echo $options['email_remote_notify']; ?>" /></td>
+                        <td>
+                            <input name="<?php echo $this->option_name?>[email_remote_notify]" type="radio" value="yes" <?php checked( 'yes', $options['email_remote_notify'] ); ?> /> Yes
+                            <br>
+                            <input name="<?php echo $this->option_name?>[email_remote_notify]" type="radio" value="no" <?php checked( 'no', $options['email_remote_notify'] ); ?> /> No
+                        </td>
                     </tr>
                 </table>
                 <p class="submit">
