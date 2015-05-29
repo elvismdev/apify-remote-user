@@ -26,8 +26,6 @@ class AruRegisterRemote
         if (!session_id())
             session_start();
 
-        add_action('init', array($this, 'init'));
-
         add_action('admin_init', array($this, 'admin_init'));
         add_action('admin_menu', array($this, 'add_page'));
         add_action('user_register', array($this, 'aru_register_remote'), 10, 1);
@@ -45,10 +43,6 @@ class AruRegisterRemote
 
     public function deactivate() {
         delete_option($this->option_name);
-    }
-
-    public function init() {
-        $settings = get_option('apify-remote-user');
     }
 
     public function admin_init() {
