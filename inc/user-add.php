@@ -25,34 +25,39 @@ class AruRegisterRemote
         if (!session_id())
             session_start();
 
-        add_action('admin_init', array($this, 'admin_init'));
-        add_action('admin_menu', array($this, 'add_page'));
+        add_action('admin_init', array($this, 'aru_admin_init'));
+        add_action('admin_menu', array($this, 'aru_add_page'));
         add_action('user_register', array($this, 'aru_register_remote'), 10, 1);
 
         // Listen for the activate event
-        register_activation_hook(ARU_PLUGIN_FILE, array($this, 'activate'));
+        register_activation_hook(ARU_PLUGIN_FILE, array($this, 'aru_activate'));
 
         // Deactivation plugin
-        register_deactivation_hook(ARU_PLUGIN_FILE, array($this, 'deactivate'));
+        register_deactivation_hook(ARU_PLUGIN_FILE, array($this, 'aru_deactivate'));
     }
 
-    public function activate() {
+    public function aru_activate()
+    {
         update_option($this->option_name, $this->data);
     }
 
-    public function deactivate() {
+    public function aru_deactivate()
+    {
         delete_option($this->option_name);
     }
 
-    public function admin_init() {
-        register_setting('aru_options', $this->option_name, array($this, 'validate'));
+    public function aru_admin_init()
+    {
+        register_setting('aru_options', $this->option_name, array($this, 'aru_validate'));
     }
 
-    public function add_page() {
-        add_options_page('APIfy Remote User', 'APIfy Remote User', 'manage_options', 'aru_options', array($this, 'options_do_page'));
+    public function aru_add_page()
+    {
+        add_options_page('APIfy Remote User', 'APIfy Remote User', 'manage_options', 'aru_options', array($this, 'aru_options_do_page'));
     }
 
-    public function options_do_page() {
+    public function aru_options_do_page()
+    {
         $options = get_option($this->option_name);
         ?>
         <div class="wrap">
@@ -82,7 +87,8 @@ class AruRegisterRemote
         <?php
     }
 
-    public function validate($input) {
+    public function aru_validate($input)
+    {
 
         $valid = array();
         $valid['url_remote_site'] = sanitize_text_field($input['url_remote_site']);
@@ -139,7 +145,7 @@ public function aru_register_remote($user_id)
     $decoded_response = json_decode($get_nonce_response['body']);
 
     if (is_wp_error($get_nonce_response) || $decoded_response->status == 'error') {
-        $this->notify('error', $decoded_response);
+        $this->aru_notify('error', $decoded_response);
     } else {
         $user_data = get_userdata($user_id);
 
@@ -150,9 +156,9 @@ public function aru_register_remote($user_id)
         $create_user_response = wp_remote_get($settings['url_remote_site'] . '/' . $settings['api_base'] . self::CREATE_USER_API . '/?nonce=' . $decoded_response->nonce . '&username=' . $user_data->user_login . '&email=' . $user_data->user_email . '&display_name=' . $first_name . '&first_name=' . $first_name . '&last_name=' . $last_name . '&user_pass=' . $password . '&notify=' . $settings['email_remote_notify']);
         $decoded_response = json_decode($create_user_response['body']);
         if ($decoded_response->status == 'ok')
-            $this->notify();
+            $this->aru_notify();
         else
-            $this->notify('error', $decoded_response);
+            $this->aru_notify('error', $decoded_response);
     }
 }
 
@@ -162,7 +168,7 @@ public function aru_register_remote($user_id)
 *
 * Set a proper description to it
 */
-public function html_notice($class = 'updated', $message = '')
+public function aru_html_notice($class = 'updated', $message = '')
 {
     if (!$message)
         return;
@@ -175,9 +181,9 @@ public function html_notice($class = 'updated', $message = '')
 /**
 * Set a proper description to it
 */
-public function notice()
+public function aru_notice()
 {
-    add_action('admin_notices', array($this, 'html_notice'), 10, 2);
+    add_action('admin_notices', array($this, 'aru_html_notice'), 10, 2);
     do_action('admin_notices', $_SESSION['notify']['class'], $_SESSION['notify']['message']);
 
     unset($_SESSION['notify']);
@@ -189,7 +195,7 @@ public function notice()
 *
 * Set a proper description to it
 */
-public function notify($class = 'updated', $response = null)
+public function aru_notify($class = 'updated', $response = null)
 {
     switch ($class) {
         case 'updated':

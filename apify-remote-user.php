@@ -22,5 +22,5 @@ require_once( ARU_PLUGIN_PATH . 'inc/user-add.php' );
 if (is_admin()) {
 	$api = new AruRegisterRemote();
 	if (isset($_SESSION['notify']))
-		$api->notice();
+		$api->aru_notice();
 }
