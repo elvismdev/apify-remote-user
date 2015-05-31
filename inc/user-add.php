@@ -139,26 +139,26 @@ class AruRegisterRemote
 */
 public function aru_register_remote($user_id)
 {
-    $settings = get_option('apify-remote-user');
+    $settings = get_option('create-remote-user');
 
-    $get_nonce_response = wp_remote_get($settings['url_remote_site'] . '/' . $settings['api_base'] . self::GET_NOUNCE_API);
-    $decoded_response = json_decode($get_nonce_response['body']);
+    if ( $group_id == $settings['group_id'] ) {
 
-    if (is_wp_error($get_nonce_response) || $decoded_response->status == 'error') {
-        $this->aru_notify('error', $decoded_response);
-    } else {
-        $user_data = get_userdata($user_id);
-
-        $first_name = isset($_POST['first_name']) ? $_POST['first_name'] : (isset($_POST['billing_first_name']) ? $_POST['billing_first_name'] : '');
-        $last_name = isset($_POST['last_name']) ? $_POST['last_name'] : (isset($_POST['billing_last_name']) ? $_POST['billing_last_name'] : '');
-        $password = isset($_POST['pass1']) ? $_POST['pass1'] : (isset($_POST['account_password']) ? $_POST['account_password'] : '');
-
-        $create_user_response = wp_remote_get($settings['url_remote_site'] . '/' . $settings['api_base'] . self::CREATE_USER_API . '/?nonce=' . $decoded_response->nonce . '&username=' . $user_data->user_login . '&email=' . $user_data->user_email . '&display_name=' . $first_name . '&first_name=' . $first_name . '&last_name=' . $last_name . '&user_pass=' . $password . '&notify=' . $settings['email_remote_notify']);
-        $decoded_response = json_decode($create_user_response['body']);
-        if ($decoded_response->status == 'ok')
-            $this->aru_notify();
-        else
-            $this->aru_notify('error', $decoded_response);
+        $get_nonce_response = wp_remote_get($settings['url_remote_site'] . '/' . $settings['api_base'] . self::GET_NOUNCE_API);
+        $decoded_response = wp_remote_retrieve_body($get_nonce_response);
+        if ( is_wp_error( $decoded_response ) ) {
+            $this->cru_notify('error', $decoded_response);
+        } else {
+            $user_data = get_userdata($user_id);
+            $first_name = isset($_POST['first_name']) ? $_POST['first_name'] : (isset($_POST['billing_first_name']) ? $_POST['billing_first_name'] : '');
+            $last_name = isset($_POST['last_name']) ? $_POST['last_name'] : (isset($_POST['billing_last_name']) ? $_POST['billing_last_name'] : '');
+            $password = isset($_POST['pass1']) ? $_POST['pass1'] : (isset($_POST['account_password']) ? $_POST['account_password'] : '');
+            $create_user_response = wp_remote_get($settings['url_remote_site'] . '/' . $settings['api_base'] . self::CREATE_USER_API . '/?nonce=' . $decoded_response->nonce . '&username=' . $user_data->user_login . '&email=' . $user_data->user_email . '&display_name=' . $first_name . '&first_name=' . $first_name . '&last_name=' . $last_name . '&user_pass=' . $password . '&notify=' . $settings['email_remote_notify']);
+            $decoded_response = wp_remote_retrieve_body($create_user_response);
+            if ( is_wp_error( $decoded_response ) )
+                $this->cru_notify();
+            else
+                $this->cru_notify('error', $decoded_response);
+        }
     }
 }
 
