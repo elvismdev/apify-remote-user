@@ -6,9 +6,9 @@
  */
 class AruRegisterRemote
 {
-    // Define APIs URL
-    const GET_NOUNCE_API = '/get_nonce/?controller=user&method=register';
-    const CREATE_USER_API = '/user/register';
+    // Define APIs
+    const GET_NOUNCE_API = 'get_nonce';
+    const CREATE_USER_API = 'user/register';
 
     // Name of the plugin options
     protected $option_name = 'apify-remote-user';
@@ -139,26 +139,58 @@ class AruRegisterRemote
 */
 public function aru_register_remote($user_id)
 {
-    $settings = get_option('create-remote-user');
+    $settings = get_option('apify-remote-user');
 
-    if ( $group_id == $settings['group_id'] ) {
+    // The args for the nounce
+    $params = array(
+        'controller' => 'user',
+        'method' => 'register'
+        );
 
-        $get_nonce_response = wp_remote_get($settings['url_remote_site'] . '/' . $settings['api_base'] . self::GET_NOUNCE_API);
-        $decoded_response = wp_remote_retrieve_body($get_nonce_response);
-        if ( is_wp_error( $decoded_response ) ) {
-            $this->cru_notify('error', $decoded_response);
-        } else {
-            $user_data = get_userdata($user_id);
-            $first_name = isset($_POST['first_name']) ? $_POST['first_name'] : (isset($_POST['billing_first_name']) ? $_POST['billing_first_name'] : '');
-            $last_name = isset($_POST['last_name']) ? $_POST['last_name'] : (isset($_POST['billing_last_name']) ? $_POST['billing_last_name'] : '');
-            $password = isset($_POST['pass1']) ? $_POST['pass1'] : (isset($_POST['account_password']) ? $_POST['account_password'] : '');
-            $create_user_response = wp_remote_get($settings['url_remote_site'] . '/' . $settings['api_base'] . self::CREATE_USER_API . '/?nonce=' . $decoded_response->nonce . '&username=' . $user_data->user_login . '&email=' . $user_data->user_email . '&display_name=' . $first_name . '&first_name=' . $first_name . '&last_name=' . $last_name . '&user_pass=' . $password . '&notify=' . $settings['email_remote_notify']);
-            $decoded_response = wp_remote_retrieve_body($create_user_response);
-            if ( is_wp_error( $decoded_response ) )
-                $this->cru_notify();
-            else
-                $this->cru_notify('error', $decoded_response);
-        }
+            // Generate the URL for the nounce
+    $api_url = $settings['url_remote_site'];
+    if ( substr( $api_url, -1 ) != '/' )
+        $api_url .= '/';
+
+    $api_url .= $settings['api_base'];
+    if ( substr( $api_url, -1 ) != '/' )
+        $api_url .= '/';
+
+    $url = $api_url . self::GET_NOUNCE_API;
+    $url = add_query_arg( $params, esc_url_raw( $url ) );
+
+    // Make API request
+    $get_nonce_response = wp_remote_get( esc_url_raw( $url ) );
+    $decoded_response = json_decode( wp_remote_retrieve_body( $get_nonce_response ) );
+
+    if (is_wp_error($get_nonce_response) || $decoded_response->status == 'error') {
+        $this->aru_notify('error', $decoded_response);
+    } else {
+        $user_data = get_userdata($user_id);
+
+        // The args to create user
+        $params = array(
+            'nonce' => $decoded_response->nonce,
+            'username' => $user_data->user_login,
+            'email' => urlencode( $user_data->user_email ),
+            'display_name' => isset($_POST['first_name']) ? $_POST['first_name'] : (isset($_POST['billing_first_name']) ? $_POST['billing_first_name'] : ''),
+            'first_name' => isset($_POST['first_name']) ? $_POST['first_name'] : (isset($_POST['billing_first_name']) ? $_POST['billing_first_name'] : ''),
+            'last_name' => isset($_POST['last_name']) ? $_POST['last_name'] : (isset($_POST['billing_last_name']) ? $_POST['billing_last_name'] : ''),
+            'user_pass' => isset($_POST['pass1']) ? $_POST['pass1'] : (isset($_POST['account_password']) ? $_POST['account_password'] : ''),
+            'notify' => $settings['email_remote_notify']
+            );
+
+        // Generate the URL to create user
+        $url = $api_url . self::CREATE_USER_API;
+        $url = add_query_arg( $params, esc_url_raw( $url ) );
+
+        $create_user_response = wp_remote_get( esc_url_raw( $url ) );
+        $decoded_response = json_decode( wp_remote_retrieve_body( $create_user_response ) );
+
+        if ($decoded_response->status == 'ok')
+            $this->aru_notify();
+        else
+            $this->aru_notify('error', $decoded_response);
     }
 }
 

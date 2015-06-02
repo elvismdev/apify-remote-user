@@ -3,7 +3,7 @@
  * Plugin Name: APIfy Remote User
  * Plugin URI: https://github.com/elvismdev/apify-remote-user
  * Description: Creates users on a remote WordPress install.
- * Version: 1.1.2
+ * Version: 1.1.3
  * Author: Elvis Morales
  * Author URI: https://twitter.com/n3rdh4ck3r
  * Requires at least: 3.5
