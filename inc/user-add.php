@@ -176,7 +176,7 @@ public function aru_register_remote($user_id)
             'display_name' => isset($_POST['first_name']) ? $_POST['first_name'] : (isset($_POST['billing_first_name']) ? $_POST['billing_first_name'] : ''),
             'first_name' => isset($_POST['first_name']) ? $_POST['first_name'] : (isset($_POST['billing_first_name']) ? $_POST['billing_first_name'] : ''),
             'last_name' => isset($_POST['last_name']) ? $_POST['last_name'] : (isset($_POST['billing_last_name']) ? $_POST['billing_last_name'] : ''),
-            'user_pass' => isset($_POST['pass1']) ? $_POST['pass1'] : (isset($_POST['account_password']) ? $_POST['account_password'] : ''),
+            'user_pass' => isset($_POST['pass1']) ? $_POST['pass1'] : (isset($_POST['account_password']) ? $_POST['account_password'] : ''), // 'user_pass_hash' => urlencode($user_data->user_pass), // HASHED
             'notify' => $settings['email_remote_notify']
             );
 
