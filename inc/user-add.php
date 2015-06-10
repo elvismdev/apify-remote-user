@@ -28,6 +28,9 @@ class AruRegisterRemote
         add_action('admin_init', array($this, 'aru_admin_init'));
         add_action('admin_menu', array($this, 'aru_add_page'));
         add_action('user_register', array($this, 'aru_register_remote'), 10, 1);
+        // Executes when a user resets his password https://codex.wordpress.org/Plugin_API/Action_Reference/password_reset
+        error_log("Hooking in the password_reset action");
+        add_action('password_reset', array($this, 'aru_update_password'), 10, 2);
 
         // Listen for the activate event
         register_activation_hook(ARU_PLUGIN_FILE, array($this, 'aru_activate'));
